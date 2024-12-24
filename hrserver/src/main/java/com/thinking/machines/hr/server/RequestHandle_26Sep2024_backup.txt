@@ -1,0 +1,179 @@
+package com.thinking.machines.hr.server;
+
+import com.thinking.machines.hr.bl.managers.*;
+
+import com.thinking.machines.hr.bl.exceptions.*;
+import com.thinking.machines.network.common.*;
+import com.thinking.machines.hr.bl.interfaces.managers.*;
+import com.thinking.machines.hr.bl.interfaces.pojo.*;
+import com.thinking.machines.network.server.*;
+
+        
+public class RequestHandler implements RequestHandlerInterface {
+    private DesignationManagerInterface designationManager;
+    
+    public RequestHandler() {
+        try {
+            designationManager = DesignationManager.getDesignationManager();
+        } catch (BLException blException) {
+            // do nothing
+        }
+    }
+
+    public Response process(Request request) {
+        Response response = new Response();
+        String manager = request.getManager();
+        String action = request.getAction();
+        Object []arguments = request.getArguments();
+
+        if(manager.equals("DesignationManager")) {
+            if(designationManager == null) {
+                // need to be implemented
+            }
+
+            if(action.equals("getDesignations")){
+                try {
+                    Object result = designationManager.getDesignations();
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("addDesignation")) {
+                try {
+                    DesignationInterface designation = (DesignationInterface) arguments[0];
+                    designationManager.addDesignation(designation);
+                    Object result = designation;
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("updateDesignation")) {
+                try {
+                    DesignationInterface designation = (DesignationInterface) arguments[0];
+                    designationManager.updateDesignation(designation);
+                    response.setSuccess(true);
+                    response.setResult(null);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("removeDesignation")) {
+                try {
+                    Integer code = (Integer) arguments[0];
+                    designationManager.removeDesignation(code);
+                    response.setSuccess(true);
+                    response.setResult(null);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("getDesignationByCode")) {
+                try {
+                    Integer code = (Integer) arguments[0];
+                    Object result = designationManager.getDesignationByCode(code);
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("getDesignationByTitle")) {
+                try {
+                    String title = (String) arguments[0];
+                    Object result = designationManager.getDesignationByTitle(title);
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("designationCodeExists")) {
+                try {
+                    Integer code = (Integer) arguments[0];
+                    Object result = designationManager.designationCodeExists(code);
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("designationTitleExists")) {
+                try {
+                    String title = (String) arguments[0];
+                    Object result = designationManager.designationTitleExists(title);
+                    response.setSuccess(true);
+                    response.setResult(result);
+                    response.setException(null);
+                    return response;
+                } catch (BLException blException ) {
+                    response.setSuccess(false);
+                    response.setResult(null);
+                    response.setException(blException);
+                    return response;
+                }
+            }
+
+            if(action.equals("getDesignationCount")) {
+                Object result = designationManager.getDesignationCount();
+                response.setSuccess(true);
+                response.setResult(result);
+                response.setException(null);
+                return response;
+            }
+        } // DesignationManager part ends here
+
+
+        // EmployeeManager part starts here
+        if(manager.equals("EmployeeManager")){
+
+        }
+        // EmployeeManager part ends here
+        return response;
+    }
+}
