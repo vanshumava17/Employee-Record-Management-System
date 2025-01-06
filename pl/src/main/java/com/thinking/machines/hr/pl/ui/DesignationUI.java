@@ -4,6 +4,7 @@ import com.thinking.machines.hr.pl.model.*;
 import com.thinking.machines.hr.bl.exceptions.*;
 import com.thinking.machines.hr.bl.interfaces.pojo.*;
 import com.thinking.machines.hr.bl.pojo.*;
+import com.thinking.machines.enums.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,9 +26,7 @@ public class DesignationUI extends JFrame {
     private JScrollPane scrollPane;
     private DesignationPanel designationPanel;
 
-    private enum MODE {
-        ADD, VIEW, EDIT, DELETE, EXPORT_TO_PDF
-    };
+    
 
     private MODE mode;
     private Container container;

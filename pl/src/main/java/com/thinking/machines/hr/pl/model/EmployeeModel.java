@@ -85,17 +85,6 @@ public class EmployeeModel extends AbstractTableModel {
 
     // Application Specific methods
 
-    public void add(EmployeeInterface employee) throws BLException {
-        employeeManager.addEmployee(employee);
-        employees.add(employee);
-        Collections.sort(this.employees, new Comparator<EmployeeInterface>() {
-            public int compare(EmployeeInterface left, EmployeeInterface right) {
-                return left.getEmployeeId().toUpperCase().compareTo(right.getEmployeeId().toUpperCase());
-            }
-        });
-        fireTableDataChanged(); // to update the table on window
-    }
-
     // main purpose of following method is to highlight that row of Employee that
     // may be added/updated etc
     public int indexOfEmployee(EmployeeInterface employee) throws BLException {
@@ -132,6 +121,19 @@ public class EmployeeModel extends AbstractTableModel {
         blException.setGenericException("Invalid title: " + name);
         throw blException;
     }
+
+    public void add(EmployeeInterface employee) throws BLException {
+        employeeManager.addEmployee(employee);
+        employees.add(employee);
+        Collections.sort(this.employees, new Comparator<EmployeeInterface>() {
+            public int compare(EmployeeInterface left, EmployeeInterface right) {
+                return left.getEmployeeId().toUpperCase().compareTo(right.getEmployeeId().toUpperCase());
+            }
+        });
+        fireTableDataChanged(); // to update the table on window
+    }
+
+    
 
     public void update(EmployeeInterface employee) throws BLException {
         employeeManager.updateEmployee(employee);

@@ -4,6 +4,7 @@ import com.thinking.machines.hr.pl.model.*;
 import com.thinking.machines.hr.bl.exceptions.*;
 import com.thinking.machines.hr.bl.interfaces.pojo.*;
 import com.thinking.machines.hr.bl.pojo.*;
+import com.thinking.machines.enums.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,13 +22,9 @@ public class EmployeeUI extends JFrame {
     private JLabel searchLabel;
     private JTextField searchTextField;
     private JButton clearSearchTextFieldButton;
-    private JTable employeeTable;
+    protected JTable employeeTable;
     private JScrollPane scrollPane;
     private EmployeePanel employeePanel;
-
-    private enum MODE {
-        ADD, VIEW, EDIT, DELETE, EXPORT_TO_PDF
-    };
 
     private MODE mode;
     private Container container;
@@ -171,6 +168,27 @@ public class EmployeeUI extends JFrame {
                 }
             }
         });
+
+        employeeTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent event) {
+                if (event.getClickCount() == 2) { // Check for double click
+                    int selectedRowIndex = employeeTable.getSelectedRow(); 
+                    setViewMode();
+                    try {
+                        EmployeeInterface employee = employeeModel.getEmployeeAt(selectedRowIndex);
+                        employeePanel.setEmployee(employee);
+                        EmployeeUI.this.setEnabled(false);
+                        EmployeeUI.this.setVisible(false);
+                        EmployeeActionsUI employeeActionsUI = new EmployeeActionsUI(EmployeeUI.this,EmployeeUI.this.employeeModel,employee,mode);
+                 
+                    } catch (BLException blException) {
+                        employeePanel.clearEmployee();
+                    }
+                       
+                }
+            }
+        });
+
     }
 
     private void searchEmployee() {
@@ -312,25 +330,35 @@ public class EmployeeUI extends JFrame {
         private void addListeners() {
             this.addButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
-                    if (mode == MODE.VIEW) { // change to view mode Button(add) clicked
+                    // if (mode == MODE.VIEW) { // change to view mode Button(add) clicked
                         setAddMode();
-                    } else // save employee and change to view mode Button(save) clicked
-                    {
-                        if (addEmployee()) {
-                            setViewMode();
-                        }
-                    }
+                        EmployeeUI.this.setEnabled(false);
+                        EmployeeUI.this.setVisible(false);
+                        EmployeeActionsUI employeeActionsUI = new EmployeeActionsUI(EmployeeUI.this,EmployeeUI.this.employeeModel,EmployeePanel.this.employee,mode);
+                        // EmployeeUI.this.setVisible(true);
+                    // } else // save employee and change to view mode Button(save) clicked
+                    // {
+                    //     if (addEmployee()) {
+                    //         setViewMode();
+                    //     }
+                    // }
+                    setViewMode();
                 }
             });
 
             this.editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
                     if (mode == MODE.VIEW) {
-                        setEditMode();
-                    } else {
-                        if (updateEmployee()) {
-                            setViewMode();
+                        if (employeeTable.getSelectedRow() < 0 || employeeTable.getSelectedRow() >= employeeModel.getRowCount()) {
+                            JOptionPane.showMessageDialog(EmployeePanel.this, "Select employee to edit");
+                            return;
                         }
+                        setEditMode();
+                        EmployeeUI.this.setEnabled(false);
+                        EmployeeUI.this.setVisible(false);
+                        EmployeeActionsUI employeeActionsUI = new EmployeeActionsUI(EmployeeUI.this,EmployeeUI.this.employeeModel,EmployeePanel.this.employee,mode);
+                
+                        setViewMode();
                     }
                 }
             });
@@ -398,7 +426,37 @@ public class EmployeeUI extends JFrame {
         }
 
         private void removeEmployee() {
-            // to be implemented
+            try {
+                String employeeId = this.employee.getEmployeeId();
+                String name = this.employee.getName();
+                int selectedOption = JOptionPane.showConfirmDialog(this, "Delete Employee?\nEmployee Id : " + employeeId + "\nName : "+name,
+                        "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (selectedOption == JOptionPane.NO_OPTION)
+                    return;
+                employeeModel.remove(this.employee.getEmployeeId());
+                JOptionPane.showMessageDialog(this, "Employee with EmployeeId \""+employeeId+"\" and Name \""+name+ "\" deleted.");
+            } catch (BLException blException) {
+                if (blException.hasGenericException()) {
+                    JOptionPane.showMessageDialog(this, blException.getGenericException());
+                } else if (blException.hasException("name")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("name"));
+                } else if (blException.hasException("designation")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("designation"));
+                } else if (blException.hasException("gender")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("gender"));
+                } else if (blException.hasException("dateOfBirth")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("dateOfBirth"));
+                } else if (blException.hasException("isIndian")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("isIndian"));
+                } else if (blException.hasException("basicSalary")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("basicSalary"));
+                } else if (blException.hasException("panNumber")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("panNumber"));
+                } else if (blException.hasException("aadharCardNumber")) {
+                    JOptionPane.showMessageDialog(this, blException.getException("aadharCardNumber"));
+                }
+                return;
+            }
         }
 
         public void setEmployee(EmployeeInterface employee) {
@@ -444,12 +502,9 @@ public class EmployeeUI extends JFrame {
             this.exportToPDFButton.setEnabled(false);
         }
 
+
+
         private void setEditMode() {
-            if (employeeTable.getSelectedRow() < 0
-                    || employeeTable.getSelectedRow() >= employeeModel.getRowCount()) {
-                JOptionPane.showMessageDialog(this, "Select employee to edit");
-                return;
-            }
             EmployeeUI.this.setEditMode();
             this.clearTitleTextFieldButton.setEnabled(true);
             this.titleTextField.setText(employee.getName());
@@ -486,5 +541,5 @@ public class EmployeeUI extends JFrame {
             this.exportToPDFButton.setEnabled(false);
             this.editButton.setEnabled(false);
         }
-    }
+    } 
 }
